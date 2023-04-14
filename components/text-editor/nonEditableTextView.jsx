@@ -96,7 +96,15 @@ export default (prop) => {
 
     if (!prop.editor) return;
     if (!suggestedTextEnabled) return;
-    
+
+    const cursorPos = JSON.parse(sessionStorage.getItem("cursorPos"));
+    const editorContentSize = sessionStorage.getItem("editorContentSize");;
+
+    // Subtracting 2 because content size is when cursor is on last position, 
+    // there is difference of 2 between cursorPos and content size
+    if(cursorPos.to < (editorContentSize - 2)) 
+      return 
+
     const last100Chars = getLast100CharactersText(prop.editor);
     const first100Chars = get200CharactersBehindCursorPos(prop.editor);
 
@@ -154,6 +162,8 @@ export default (prop) => {
   if (window.getSelection()?.toString() || isMobile) {
     return <NodeViewWrapper className="node-view"> </NodeViewWrapper>
   }
+
+  
 
   return (
     <NodeViewWrapper className="node-view">

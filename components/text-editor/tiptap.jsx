@@ -1,4 +1,5 @@
 import { useEditor, EditorContent, useSuggest } from "@tiptap/react";
+import _ from "lodash";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import { isMobile } from "react-device-detect";
@@ -209,7 +210,17 @@ export const Tiptap = ({
       saveDocumentDebounced(html, currDocument);
     },
     onTransaction: ({ editor }) => {
+      const selection = _.get(editor ,'view.state.selection', null);
+
+      if(selection){
+        const from = selection?.$anchor?.parentOffset || null;
+        const to = selection?.$head?.parentOffset || null;
+
+        sessionStorage.setItem("cursorPos", JSON.stringify({ from, to}))
+      }
       const { doc } = editor.view.state;
+
+      sessionStorage.setItem("editorContentSize", doc?.content?.size || null)
       if (suggestText && !suggestText.current) {
         suggestText.current = true;
      
