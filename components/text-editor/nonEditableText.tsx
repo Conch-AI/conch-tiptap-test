@@ -30,10 +30,12 @@ export default Node.create({
         }
         
         if(!window.getSelection()?.toString()) {
-          const text = localStorage.getItem("nextSentenceText") || "";
+          const text = sessionStorage.getItem("nextSentenceText") || "";
 
           if(this.editor.commands.deleteNode("reactComponent")){
-            this.editor.commands.insertContent(" " + text)
+            this.editor.commands.insertContent(" " + text);
+            sessionStorage.setItem("nextSentenceText", "")
+            sessionStorage.setItem("recentSuggestionAccepted", "true")
           }else{
             this.editor.chain().focus().setTextSelection(this.editor.view.state.selection.$anchor.pos + 1).run()
           }

@@ -9,7 +9,7 @@ import { isMobile } from "react-device-detect";
 // eslint-disable-next-line import/no-anonymous-default-export, react/display-name
 export default (prop) => {
   const [response, setResponse] = useState();
-  const [showLoading, setShowLoading] = useState(true);
+  const [showLoading, setShowLoading] = useState(false);
   var apiCalled = false;;
   const { setShowSuggestionsModal, setIsSuggestedTextAdded, apiCalled1stTime, setDisableNextButton, setApiCalled1stTime } = useContext(TiptapContext)
   const [suggestedTextEnabled, setSuggestedTextEnabled] = useState(true);
@@ -92,11 +92,19 @@ export default (prop) => {
   useEffect(() => {
     // get editor content and send to API
     // save response to state
+    const recentSuggestionAccepted = sessionStorage.getItem("recentSuggestionAccepted")
+
+    console.log(" recentSuggestionAccepted ", recentSuggestionAccepted)
+    if(recentSuggestionAccepted === "true"){
+      sessionStorage.setItem("recentSuggestionAccepted", "false");
+      return
+    }
     if (isMobile) return;
 
     if (!prop.editor) return;
     if (!suggestedTextEnabled) return;
-    
+
+    setShowLoading(true);
     const last100Chars = getLast100CharactersText(prop.editor);
     const first100Chars = get200CharactersBehindCursorPos(prop.editor);
 
@@ -117,7 +125,7 @@ export default (prop) => {
             if (last100Chars && last100Chars[last100Chars.length - 1] !== " ") {
               nextSentence = " " + nextSentence;
             }
-            localStorage.setItem("nextSentenceText", nextSentence);
+            sessionStorage.setItem("nextSentenceText", nextSentence);
             setResponse(nextSentence);
             if (!apiCalled1stTime) {
               setApiCalled1stTime(true)
@@ -149,7 +157,7 @@ export default (prop) => {
       setShowLoading(false);
     }, 3000);
     return () => clearTimeout(timer);
-  }, [prop.editor]);
+  }, [showLoading]);
 
   if (window.getSelection()?.toString() || isMobile) {
     return <NodeViewWrapper className="node-view"> </NodeViewWrapper>
